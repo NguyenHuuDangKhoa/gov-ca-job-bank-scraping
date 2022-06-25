@@ -3,15 +3,15 @@ import requests
 # import lxml
 import json
 import os
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 import selenium.common.exceptions as SeleniumException
 
-BASE_URL = "https://www.jobbank.gc.ca/jobsearch/jobsearch?dkw=ethnic&sort=M&fprov=AB&fsrc=16"
+BASE_URL = "https://www.jobbank.gc.ca/jobsearch/jobsearch?dkw=&sort=M&fprov=AB&fsrc=16"
 
 os.environ["PATH"] += r"C:\Document\Python\selenium_driver"
 options = Options()
@@ -137,10 +137,8 @@ for url in url_list:
         "job_requirement": job_requirement,
         "benefits": benefits,
     }
+    time.sleep(3)
 
-    job_posting_index += 1
-    if job_posting_index > 3:
-        break
 with open("job_postings.json", "w") as file:
     json.dump(job_postings, file)
 
