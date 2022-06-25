@@ -9,76 +9,85 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
+import selenium.common.exceptions as SeleniumException
 
 os.environ["PATH"] += r"C:\Document\Python\selenium_driver"
 options = Options()
 options.add_experimental_option("detach", True)
 driver = webdriver.Chrome(options=options)
 # driver.get("https://www.jobbank.gc.ca/jobsearch/jobsearch?searchstring=&locationstring=Alberta&sort=M")
-driver.get("https://www.jobbank.gc.ca/jobsearch/jobposting/36425756?source=searchresults")
+driver.get("https://www.jobbank.gc.ca/jobsearch/jobposting/36466882?source=searchresults")
 driver.implicitly_wait(10)
 job_title = driver.find_element(By.CSS_SELECTOR, "span[property='title']").text
-print(job_title)
 posted_date = driver.find_element(By.CSS_SELECTOR, "span[property='datePosted']").text.replace("Posted on ", "")
-print(posted_date)
 employer_name = driver.find_element(By.CSS_SELECTOR, "span[property='hiringOrganization']").text
-print(employer_name)
+job_location = driver.find_element(By.CSS_SELECTOR, "span[class='noc-location']").text
+city = driver.find_element(By.CSS_SELECTOR, "span[property='addressLocality']").text
+province = driver.find_element(By.CSS_SELECTOR, "span[property='addressRegion']").text
+try:
+    street = driver.find_element(By.CSS_SELECTOR, "span[property='streetAddress']").text
+except SeleniumException.NoSuchElementException:
+    street = "N/A"
+try:
+    postal_code = driver.find_element(By.CSS_SELECTOR, "span[property='postalCode']").text
+except SeleniumException.NoSuchElementException:
+    postal_code = "N/A"
 
-# employer_name = soup.find("span", property="hiringOrganization").find(property="name").getText()
-# job_location = soup.find("span", property="address", class_="city").getText()
-
-
-
-# WebDriverWait(driver, 30).until(
-#     EC.visibility_of_element_located((By.XPATH, "//div[@class='btn btn-default btn-sm btn-block'"
-#                                                 " and contains(.,'Show more results')]"))
-# )
-# while True:
-#     try:
-#         WebDriverWait(driver, 30).until(
-#             EC.visibility_of_element_located((By.XPATH, "//button[@class='btn btn-default btn-sm btn-block'"
-#                                                         " and contains(.,'Show more results')]"))
-#         )
-#         print("MORE button clicked")
-#     except TimeoutException:
-#         print("Time Out")
-#         break
-
+job_requirement = driver.find_element(By.CSS_SELECTOR, "div.job-posting-detail-requirements ").text
+try:
+    print(job_requirement[job_requirement.index("Other benefits"):])
+    print(job_requirement[:job_requirement.index("Other benefits")])
+    benefits = job_requirement[job_requirement.index("Other benefits"):]
+    job_requirement = job_requirement[:job_requirement.index("Other benefits")]
+except ValueError:
+    benefits = "N/A"
 
 
-
-
-
-
-
-
-# def extract_jobs(job_position="", job_location="", parser="html.parser"):
-#     url = f"https://www.jobbank.gc.ca/jobsearch/jobsearch?searchstring={job_position}&locationstring={job_location}"
-#     response = requests.get(url=url).text
-#     soup = BeautifulSoup(response, parser)
-#     return soup
-#
-#
-# soup = extract_jobs(parser="lxml")
-# print(soup)
-
-# response = requests.get(url="https://www.jobbank.gc.ca/jobsearch/jobposting/36411535?source=searchresults")
-# job_bank_gc_ca = response.text
-#
-# soup = BeautifulSoup(job_bank_gc_ca, "html.parser")
-# job_title = soup.find("span", property="title").getText()
-# posted_date = soup.find("span", property="datePosted", class_="date").getText()
-# employer_name = soup.find("span", property="hiringOrganization").find(property="name").getText()
-# job_location = soup.find("span", property="address", class_="city").getText()
 # salary_amount = soup.find("span", property="baseSalary", class_="attribute-value").getText()\
 #     .removeprefix("$").replace("HOUR", "") + " for" + soup.find("span", property="workHours").getText()
 # job_requirement = soup.find("div", property="skills").find_all("dd")
-# for dd in job_requirement:
-#     print(dd.getText())
-#
-# print(job_title)
-# print(posted_date)
-# print(employer_name)
-# print(job_location)
-# print(salary_amount)
-# print(job_requirement)
+salary_amount = driver.find_element(By.CSS_SELECTOR, "span[property='value']").text\
+    .replace("HOUR", "").replace("hourly", "").rstrip("\n")
+employment_type = driver.find_element(By.CSS_SELECTOR, "span[property='employmentType']").text
+work_hour = driver.find_element(By.CSS_SELECTOR, "span[property='workHours']").text
+
+# We need to scrape the start date but its value is inside a span tag without any class name,or, id, or attributes
+# I notice that tha span tag we need is inside an item list inside an unordered list
+# There are either 7 or 9 list items
+# If there are 7 list items then start date would be in list item 5
+# If there are 9 list items then start date would be in list item 4
+# The case for scraping vacancy information and job id are similar
+list_items = driver.find_elements(By.CSS_SELECTOR, "ul.job-posting-brief.colcount-lg-2 > li")
+if len(list_items) == 9:
+    start_date = list_items[4].text.replace("Start date", "").lstrip("\n")
+    vacancy = list_items[6].text.replace("vacancies", "").lstrip("\n")
+    job_id = list_items[-1].text.replace("Source", "").replace("Job Bank #", "").lstrip("\n")
+elif len(list_items) == 7:
+    start_date = list_items[3].text.replace("Start date", "").lstrip("\n")
+    vacancy = list_items[4].text.replace("vacancies", "").lstrip("\n")
+    job_id = list_items[-1].text.replace("Source", "").replace("Job Bank #", "").lstrip("\n")
+else:
+    start_date = "N/A"
+    vacancy = "N/A"
+    job_id = "N/A"
+
+print(job_title)
+print(posted_date)
+print(employer_name)
+print(job_location)
+print(street)
+print(city)
+print(province)
+print(postal_code)
+print(salary_amount)
+print(employment_type)
+print(work_hour)
+print(start_date)
+print(vacancy)
+print(job_id)
+print(job_requirement)
+print(benefits)
+
+
+
+
