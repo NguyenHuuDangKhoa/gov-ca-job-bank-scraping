@@ -82,10 +82,21 @@ class Driver(webdriver.Chrome):
             print(f"Begin scraping url: {self.job_posting_index}")
             try:
                 self.get(url)
-                self.implicitly_wait(10)
+                try:
+                    WebDriverWait(self, 10, ignored_exceptions=selenium_exception.StaleElementReferenceException) \
+                        .until(
+                        expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, "button[id='applynowbutton']"))
+                    ).click()  # Wait 10s for button to show up before raising an exception
+                    apply_by = self.find_element(By.CSS_SELECTOR, "div[id='howtoapply'] > p > a") \
+                        .get_attribute("href")
+                except selenium_exception.TimeoutException:
+                    print("There is no 'Show how to apply' button")
+                    apply_by = "N/A"
+                # self.implicitly_wait(10)
                 job_title = self.find_element(By.CSS_SELECTOR, "span[property='title']").text
                 posted_date = self.find_element(By.CSS_SELECTOR, "span[property='datePosted']")\
                     .text.replace("Posted on ", "")
+                expire_date = self.find_element(By.CSS_SELECTOR, "p[property='validThrough']").text
                 employer_name = self.find_element(By.CSS_SELECTOR, "span[property='hiringOrganization']").text
                 job_location = self.find_element(By.CSS_SELECTOR, "span[class='noc-location']").text
                 city = self.find_element(By.CSS_SELECTOR, "span[property='addressLocality']").text
@@ -145,6 +156,7 @@ class Driver(webdriver.Chrome):
                     "source_url": url,
                     "job_title": job_title,
                     "posted_date": posted_date,
+                    "expire_date": expire_date,
                     "employer_name": employer_name,
                     "job_location": job_location,
                     "street": street,
@@ -159,6 +171,7 @@ class Driver(webdriver.Chrome):
                     "job_id": job_id,
                     "job_requirement": job_requirement,
                     "benefits": benefits,
+                    "apply_by": apply_by,
                 }
                 print(f"Finished scraping url: {self.job_posting_index}")
                 self.job_posting_index += 1
