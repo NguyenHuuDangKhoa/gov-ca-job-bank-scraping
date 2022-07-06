@@ -11,7 +11,8 @@ Requirements:
 
 Brief Tutorial:
 
-The application main code is in the Driver class. The class has two main method: 
+The application main code is in the Driver class. The class has two main method:
+
   a/ find_all_job_postings_url()
     """
     Find all the postings urls and store them in the url_list attribute of the class
