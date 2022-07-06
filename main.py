@@ -1,21 +1,15 @@
 from src.Driver import Driver
-import json
-
-dict = {"key": 1}
-
-with open("./docs/test.json", "w") as file:
-    json.dump(dict, file)
 
 
-# def run():
-#     with Driver() as bot:
-#         bot.find_all_job_postings_url(operation='update')
-#         bot.scrape_all_job_posting_url()
-#         print("Exiting...")
-#
-#
-# if __name__ == "__main__":
-#     run()
+def run():
+    with Driver() as bot:
+        bot.find_all_job_postings_url(operation='update')
+        bot.scrape_all_job_posting_url()
+        print("Exiting...")
+
+
+if __name__ == "__main__":
+    run()
 
 
 # from bs4 import BeautifulSoup
