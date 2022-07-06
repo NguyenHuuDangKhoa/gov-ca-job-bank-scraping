@@ -9,7 +9,7 @@ import json
 
 class Driver(webdriver.Chrome):
     """
-    Represents an automatic web src that navigates through the Job Bank site
+    Represents an automatic web driver that navigates through the Job Bank site
     and scrape desired information
     """
 
