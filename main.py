@@ -1,7 +1,9 @@
 from src.Driver import Driver
+import schedule
+import time
 
 
-def run():
+def job():
     with Driver() as bot:
         bot.find_all_job_postings_url(operation='update')
         bot.scrape_all_job_posting_url()
@@ -9,7 +11,10 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    schedule.every().day.at("13:32").do(job)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 
 # from bs4 import BeautifulSoup
