@@ -7,6 +7,7 @@ def job():
     with Driver() as bot:
         bot.find_all_job_postings_url(operation='update')
         bot.scrape_all_job_posting_url()
+        bot.reset_scraper()
         print("Exiting...")
 
 
