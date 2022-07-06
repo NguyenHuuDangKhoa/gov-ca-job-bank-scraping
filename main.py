@@ -11,7 +11,8 @@ def job():
 
 
 if __name__ == "__main__":
-    schedule.every().day.at("13:32").do(job)
+    start_time = input("Please enter the time [HH:MM 24h format] you want to start the script everyday: ")
+    schedule.every().day.at(start_time).do(job)
     while True:
         schedule.run_pending()
         time.sleep(1)
