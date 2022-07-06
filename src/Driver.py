@@ -37,7 +37,7 @@ class Driver(webdriver.Chrome):
         if self.teardown:
             self.quit()
 
-    def clear_all_url(self):
+    def reset_scraper(self):
         self.url_list = []
         self.job_postings = {}
         self.job_posting_index = 1
